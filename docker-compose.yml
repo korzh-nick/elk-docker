@@ -1,0 +1,42 @@
+elasticsearch:
+   image: elasticsearch:5.5
+   restart: always
+   log_opt:
+      max-size: "100m"
+      max-file: "1000"
+   ports:
+      - 9200
+   volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+
+logstash:
+   build: logstash
+   restart: always
+   log_opt:
+      max-size: "100m"
+      max-file: "1000"
+   command: logstash -f /config-dir/logstash.conf
+   ports:
+     - 10514:10514/udp
+   links:
+     - elasticsearch
+
+kibana:
+   build: kibana
+   restart: always
+   log_opt:
+      max-size: "100m"
+      max-file: "1000"
+   ports:
+      - 5601:5601
+   links:
+      - elasticsearch
+
+curator:
+  build: curator
+  restart: always
+  log_opt:
+     max-size: "100m"
+     max-file: "1000"
+  links:
+     - elasticsearch
